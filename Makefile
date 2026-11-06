@@ -1,4 +1,4 @@
-BINARY_NAME=go-template
+BINARY_NAME=drover
 VERSION?=$(shell git describe --tags --always --dirty 2>/dev/null || echo dev)
 LDFLAGS=-s -w -X main.Version=$(VERSION)
 INSTALL_DIR?=$(HOME)/.local/bin

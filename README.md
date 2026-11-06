@@ -1,4 +1,4 @@
-# Go Template
+# drover
 
 ## Overview
 
@@ -28,24 +28,11 @@ Optional configuration:
 APP_NAME=Codex make run
 ```
 
-## Updating
-
-Release builds can update themselves from GitHub Releases:
-
-```bash
-go-template update --check          # report current vs latest, change nothing
-go-template update                  # prompts "Update X -> Y? [y/N]"
-go-template update --yes            # required when stdin is not interactive
-go-template update --version v1.2.3 # install a specific release
-```
-
-Dev and dirty builds refuse to update. Set `GITHUB_TOKEN` for private repos or rate limits. Change `repoSlug` in `internal/app/update.go` when using this template.
-
 ## Docker
 
 ```bash
-docker build -t go-template .
-docker run --rm go-template
+docker build -t drover .
+docker run --rm drover
 ```
 
 ## Tooling

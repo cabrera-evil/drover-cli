@@ -1,5 +1,5 @@
 [tools]
-go = "1.25.1"
+go = "1.25.12"
 golangci-lint = "latest"
 goreleaser = "latest"
 golangci-lint-langserver = "latest"
@@ -13,7 +13,7 @@ run = "go run ."
 
 [tasks.build]
 description = "Build the binary"
-run = "go build -trimpath -o bin/go-template ."
+run = "go build -trimpath -o bin/drover ."
 
 [tasks.test]
 description = "Run all tests"

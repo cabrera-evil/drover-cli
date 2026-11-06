@@ -24,7 +24,7 @@ formatters:
       # with the given prefixes are grouped after 3rd-party packages.
       # Default: []
       local-prefixes:
-        - go-template
+        - github.com/cabrera-evil/drover-cli
 
     golines:
       # Target maximum line length.

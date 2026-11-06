@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for contributing. Keep changes focused and the template minimal.
+Thanks for contributing. Keep changes focused minimal.
 
 ## Quick Checklist
 

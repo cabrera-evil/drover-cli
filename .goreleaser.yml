@@ -1,17 +1,16 @@
 version: 2
-project_name: go-template
+project_name: drover
 before:
   hooks:
     - go mod tidy
 builds:
-  - id: go-template
-    binary: go-template
+  - id: drover
+    binary: drover
     main: .
     env:
       - CGO_ENABLED=0
     goos:
       - linux
-      - windows
       - darwin
     goarch:
       - amd64
@@ -24,10 +23,6 @@ archives:
   - formats:
       - tar.gz
     name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
-    format_overrides:
-      - goos: windows
-        formats:
-          - zip
 checksum:
   name_template: "{{ .ProjectName }}_{{ .Version }}_checksums.txt"
 snapshot:

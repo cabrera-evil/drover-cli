@@ -11,8 +11,8 @@ mise install
 ## Build
 
 ```bash
-make build                     # bin/go-template
-make install                   # ~/.local/bin/go-template (override INSTALL_DIR)
+make build                     # bin/drover
+make install                   # ~/.local/bin/drover (override INSTALL_DIR)
 ```
 
 The build stamps `main.Version` from `git describe`; override with `make build VERSION=1.2.3`.
