@@ -1,0 +1,543 @@
+{
+  "$defs": {
+    "split": {
+      "additionalProperties": false,
+      "properties": {
+        "children": {
+          "items": {
+            "$ref": "#/$defs/split"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "group": {
+          "type": "string"
+        },
+        "split": {
+          "enum": [
+            "columns",
+            "rows"
+          ]
+        }
+      },
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "defaults": {
+      "additionalProperties": false,
+      "description": "Process keys applied when a process leaves them unset.",
+      "properties": {
+        "cmd": {
+          "description": "Shell command to run.",
+          "type": "string"
+        },
+        "cwd": {
+          "description": "Working directory; supports ~ and ${VAR}, relative to the config file.",
+          "type": "string"
+        },
+        "depends_on": {
+          "description": "Processes that must be ready first.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "env": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Extra environment variables; merged by key over the template.",
+          "type": "object"
+        },
+        "env_file": {
+          "description": "Dotenv file loaded into the process environment.",
+          "type": "string"
+        },
+        "port": {
+          "description": "Port number, or a key read from an env file.",
+          "oneOf": [
+            {
+              "maximum": 65535,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "from_env_file": {
+                  "type": "string"
+                },
+                "key": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "from_env_file",
+                "key"
+              ],
+              "type": "object"
+            }
+          ]
+        },
+        "ready": {
+          "additionalProperties": false,
+          "description": "Readiness check: one of http, tcp, log, delay or none, plus timeout.",
+          "properties": {
+            "delay": {
+              "description": "Go duration, e.g. 500ms, 5s, 2m.",
+              "type": "string"
+            },
+            "http": {
+              "type": "string"
+            },
+            "log": {
+              "type": "string"
+            },
+            "none": {
+              "const": true
+            },
+            "tcp": {
+              "type": "string"
+            },
+            "timeout": {
+              "description": "Go duration, e.g. 500ms, 5s, 2m.",
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "restart": {
+          "description": "never, on-failure, or {on-failure: {max: N}}.",
+          "oneOf": [
+            {
+              "enum": [
+                "never",
+                "on-failure"
+              ]
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "on-failure": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "max": {
+                      "minimum": 0,
+                      "type": "integer"
+                    }
+                  },
+                  "type": "object"
+                }
+              },
+              "required": [
+                "on-failure"
+              ],
+              "type": "object"
+            }
+          ]
+        },
+        "stop": {
+          "description": "Shell command used to stop the process.",
+          "type": "string"
+        },
+        "tags": {
+          "description": "Tags used by groups and presets.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "use": {
+          "description": "Template to start from; process keys win over template keys.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "description": {
+      "description": "Free-text stack description.",
+      "type": "string"
+    },
+    "groups": {
+      "additionalProperties": {
+        "additionalProperties": false,
+        "properties": {
+          "label": {
+            "description": "Display label.",
+            "type": "string"
+          },
+          "layout": {
+            "description": "Layout for the group.",
+            "oneOf": [
+              {
+                "enum": [
+                  "default",
+                  "columns",
+                  "rows",
+                  "main-vertical"
+                ]
+              },
+              {
+                "$ref": "#/$defs/split"
+              }
+            ]
+          },
+          "processes": {
+            "description": "Select these processes explicitly.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "tags_all": {
+            "description": "Select processes having all of these tags.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "tags_any": {
+            "description": "Select processes having any of these tags.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "description": "Named process selections shown as panes.",
+      "type": "object"
+    },
+    "layout": {
+      "description": "Pane layout: a named layout or an explicit split tree.",
+      "oneOf": [
+        {
+          "enum": [
+            "default",
+            "columns",
+            "rows",
+            "main-vertical"
+          ]
+        },
+        {
+          "$ref": "#/$defs/split"
+        }
+      ]
+    },
+    "logdir": {
+      "description": "Logs directory; supports ~ and ${VAR}.",
+      "type": "string"
+    },
+    "name": {
+      "description": "Stack name; used for the logs directory.",
+      "type": "string"
+    },
+    "presets": {
+      "additionalProperties": {
+        "additionalProperties": false,
+        "properties": {
+          "tags_all": {
+            "description": "Match processes having all of these tags.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "tags_any": {
+            "description": "Match processes having any of these tags.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "description": "Named tag filters; the builtin all matches every process.",
+      "type": "object"
+    },
+    "processes": {
+      "additionalProperties": {
+        "additionalProperties": false,
+        "properties": {
+          "cmd": {
+            "description": "Shell command to run.",
+            "type": "string"
+          },
+          "cwd": {
+            "description": "Working directory; supports ~ and ${VAR}, relative to the config file.",
+            "type": "string"
+          },
+          "depends_on": {
+            "description": "Processes that must be ready first.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "env": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Extra environment variables; merged by key over the template.",
+            "type": "object"
+          },
+          "env_file": {
+            "description": "Dotenv file loaded into the process environment.",
+            "type": "string"
+          },
+          "port": {
+            "description": "Port number, or a key read from an env file.",
+            "oneOf": [
+              {
+                "maximum": 65535,
+                "minimum": 1,
+                "type": "integer"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "from_env_file": {
+                    "type": "string"
+                  },
+                  "key": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "from_env_file",
+                  "key"
+                ],
+                "type": "object"
+              }
+            ]
+          },
+          "ready": {
+            "additionalProperties": false,
+            "description": "Readiness check: one of http, tcp, log, delay or none, plus timeout.",
+            "properties": {
+              "delay": {
+                "description": "Go duration, e.g. 500ms, 5s, 2m.",
+                "type": "string"
+              },
+              "http": {
+                "type": "string"
+              },
+              "log": {
+                "type": "string"
+              },
+              "none": {
+                "const": true
+              },
+              "tcp": {
+                "type": "string"
+              },
+              "timeout": {
+                "description": "Go duration, e.g. 500ms, 5s, 2m.",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "restart": {
+            "description": "never, on-failure, or {on-failure: {max: N}}.",
+            "oneOf": [
+              {
+                "enum": [
+                  "never",
+                  "on-failure"
+                ]
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "on-failure": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "max": {
+                        "minimum": 0,
+                        "type": "integer"
+                      }
+                    },
+                    "type": "object"
+                  }
+                },
+                "required": [
+                  "on-failure"
+                ],
+                "type": "object"
+              }
+            ]
+          },
+          "stop": {
+            "description": "Shell command used to stop the process.",
+            "type": "string"
+          },
+          "tags": {
+            "description": "Tags used by groups and presets.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "use": {
+            "description": "Template to start from; process keys win over template keys.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "description": "Processes to supervise, keyed by name.",
+      "type": "object"
+    },
+    "templates": {
+      "additionalProperties": {
+        "additionalProperties": false,
+        "properties": {
+          "cmd": {
+            "description": "Shell command to run.",
+            "type": "string"
+          },
+          "cwd": {
+            "description": "Working directory; supports ~ and ${VAR}, relative to the config file.",
+            "type": "string"
+          },
+          "depends_on": {
+            "description": "Processes that must be ready first.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "env": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Extra environment variables; merged by key over the template.",
+            "type": "object"
+          },
+          "env_file": {
+            "description": "Dotenv file loaded into the process environment.",
+            "type": "string"
+          },
+          "port": {
+            "description": "Port number, or a key read from an env file.",
+            "oneOf": [
+              {
+                "maximum": 65535,
+                "minimum": 1,
+                "type": "integer"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "from_env_file": {
+                    "type": "string"
+                  },
+                  "key": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "from_env_file",
+                  "key"
+                ],
+                "type": "object"
+              }
+            ]
+          },
+          "ready": {
+            "additionalProperties": false,
+            "description": "Readiness check: one of http, tcp, log, delay or none, plus timeout.",
+            "properties": {
+              "delay": {
+                "description": "Go duration, e.g. 500ms, 5s, 2m.",
+                "type": "string"
+              },
+              "http": {
+                "type": "string"
+              },
+              "log": {
+                "type": "string"
+              },
+              "none": {
+                "const": true
+              },
+              "tcp": {
+                "type": "string"
+              },
+              "timeout": {
+                "description": "Go duration, e.g. 500ms, 5s, 2m.",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "restart": {
+            "description": "never, on-failure, or {on-failure: {max: N}}.",
+            "oneOf": [
+              {
+                "enum": [
+                  "never",
+                  "on-failure"
+                ]
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "on-failure": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "max": {
+                        "minimum": 0,
+                        "type": "integer"
+                      }
+                    },
+                    "type": "object"
+                  }
+                },
+                "required": [
+                  "on-failure"
+                ],
+                "type": "object"
+              }
+            ]
+          },
+          "stop": {
+            "description": "Shell command used to stop the process.",
+            "type": "string"
+          },
+          "tags": {
+            "description": "Tags used by groups and presets.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "use": {
+            "description": "Template to start from; process keys win over template keys.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "description": "Named process templates, referenced with use.",
+      "type": "object"
+    },
+    "version": {
+      "const": 1,
+      "description": "Config schema version; must be 1.",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "version",
+    "name"
+  ],
+  "title": "drover.yaml",
+  "type": "object"
+}

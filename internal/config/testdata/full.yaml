@@ -1,0 +1,59 @@
+version: 1
+name: demo
+description: Demo stack
+defaults:
+  restart: on-failure
+templates:
+  node:
+    cmd: npm run dev
+    env:
+      NODE_ENV: development
+      SHARED: from-template
+    tags: [js]
+processes:
+  api:
+    use: node
+    cwd: ./api
+    cmd: npm run api
+    env:
+      SHARED: from-process
+      API_TOKEN: s3cr3t-token
+    tags: [backend, js]
+    depends_on: [db]
+    ready:
+      http: http://localhost:3000/health
+      timeout: 30s
+    port: 3000
+  db:
+    cmd: docker compose up db
+    cwd: ./db
+    tags: [backend]
+    ready:
+      tcp: localhost:5432
+      timeout: 10s
+  web:
+    cmd: npm run web
+    cwd: ./web
+    tags: [frontend]
+groups:
+  backend:
+    label: Backend
+    tags_any: [backend]
+    layout: columns
+  frontend:
+    label: Frontend
+    processes: [web]
+    layout: rows
+  strict:
+    tags_all: [backend, js]
+presets:
+  be:
+    tags_any: [backend]
+layout:
+  split: columns
+  children:
+    - group: backend
+    - split: rows
+      children:
+        - group: frontend
+        - group: strict
