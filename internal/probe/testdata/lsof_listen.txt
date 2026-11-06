@@ -1,0 +1,4 @@
+COMMAND    PID  USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+node     12345 doug   23u  IPv4 0x1a2b3c4d5e6f      0t0  TCP *:3000 (LISTEN)
+postgres   555 doug    7u  IPv6 0x1a2b3c4d5e70      0t0  TCP [::1]:5432 (LISTEN)
+rapportd   400 doug    8u  IPv4 0x1a2b3c4d5e71      0t0  TCP 127.0.0.1:49152 (LISTEN)
