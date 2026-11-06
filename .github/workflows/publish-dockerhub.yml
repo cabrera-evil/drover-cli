@@ -1,0 +1,44 @@
+name: Publish to Dockerhub
+
+on:
+  push:
+    branches:
+      - master
+      - develop
+    tags:
+      - "**"
+  pull_request:
+    branches:
+      - master
+      - develop
+    types:
+      - opened
+      - reopened
+      - synchronize
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: write
+  issues: write
+  packages: write
+  pull-requests: write
+  security-events: write
+
+jobs:
+  analyze_code:
+    name: Analyze
+    uses: cabrera-evil/workflows/.github/workflows/code-analysis.yaml@master
+    with:
+      default_branch: ${{ github.event.repository.default_branch }}
+      push_before_sha: ${{ github.event.before }}
+      push_base_sha: ${{ github.event.base_ref }}
+    secrets: inherit
+
+  publish:
+    name: Publish
+    needs: analyze_code
+    uses: cabrera-evil/workflows/.github/workflows/publish-docker.yaml@master
+    with:
+      label: ${{ github.event.repository.name }}
+    secrets: inherit

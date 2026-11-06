@@ -1,0 +1,34 @@
+version: 2
+project_name: go-template
+before:
+  hooks:
+    - go mod tidy
+builds:
+  - id: go-template
+    binary: go-template
+    main: .
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X main.Version={{.Version}}
+archives:
+  - formats:
+      - tar.gz
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats:
+          - zip
+checksum:
+  name_template: "{{ .ProjectName }}_{{ .Version }}_checksums.txt"
+snapshot:
+  version_template: "{{ .Tag }}-next"

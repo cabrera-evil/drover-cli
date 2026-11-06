@@ -1,0 +1,17 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    uses: cabrera-evil/workflows/.github/workflows/go-ci.yaml@master
+    with:
+      go-version-file: go.mod
+      goflags: -mod=readonly

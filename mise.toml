@@ -1,0 +1,52 @@
+[tools]
+go = "1.25.1"
+golangci-lint = "latest"
+goreleaser = "latest"
+golangci-lint-langserver = "latest"
+
+[env]
+_.file = ".env"
+
+[tasks.dev]
+description = "Run the application in development mode"
+run = "go run ."
+
+[tasks.build]
+description = "Build the binary"
+run = "go build -trimpath -o bin/go-template ."
+
+[tasks.test]
+description = "Run all tests"
+run = "go test -v ./..."
+
+[tasks.tidy]
+description = "Tidy Go modules"
+run = "go mod tidy"
+
+[tasks.lint]
+description = "Run golangci-lint"
+run = "golangci-lint run"
+
+[tasks.lint-fix]
+description = "Run golangci-lint with auto-fix"
+run = "golangci-lint run --fix"
+
+[tasks.clean]
+description = "Remove build artifacts"
+run = "rm -rf bin/"
+
+[tasks.install]
+description = "Install binary to $GOPATH/bin"
+run = "go install"
+
+[tasks.all]
+description = "Run tidy, test, and build"
+depends = ["tidy", "test", "build"]
+
+[tasks.release]
+description = "Create a release with goreleaser"
+run = "goreleaser release --clean"
+
+[tasks.release-snapshot]
+description = "Create a snapshot release"
+run = "goreleaser release --snapshot --clean"
