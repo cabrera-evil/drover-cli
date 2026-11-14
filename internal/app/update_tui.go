@@ -12,26 +12,31 @@ import (
 	"github.com/charmbracelet/x/ansi"
 )
 
-// errBlank replaces an error whose text is empty once sanitized, so the view never shows a blank line.
-const errBlank = "update failed"
+var (
+	// urlUserinfo matches the "user:password@" part of any URL embedded in text.
+	urlUserinfo = regexp.MustCompile(`(\w+://)[^\s"'<>/?#@]*@`)
+	// urlQuery matches the query string or fragment of any URL embedded in text.
+	urlQuery = regexp.MustCompile(`(\w+://[^\s"'<>?#]+)[?#][^\s"'<>]*`)
+)
 
-// urlQuery matches the query string of any URL embedded in text.
-var urlQuery = regexp.MustCompile(`(\w+://[^\s"'<>?]+)\?[^\s"'<>]*`)
+// stripURLSecrets removes userinfo, query strings and fragments, which may carry credentials or tokens.
+func stripURLSecrets(s string) string {
+	return urlQuery.ReplaceAllString(urlUserinfo.ReplaceAllString(s, "$1"), "$1")
+}
 
-// clean makes untrusted text safe to render: no escape sequences, no control characters (newlines
-// aside) and no URL query strings, which may carry tokens. Queries are removed before and after the
-// escape stripping because ansi.Strip can swallow a "?" and glue a query back onto a URL.
+// clean makes untrusted text safe to render: no escape sequences, no control or Unicode format
+// characters (newlines aside) and no URL userinfo, query strings or fragments.
 func clean(s string) string {
-	s = ansi.Strip(urlQuery.ReplaceAllString(s, "$1"))
+	// URLs go first: ansi.Strip would eat an ESC-adjacent "?" and disguise the query.
 	s = strings.Map(func(r rune) rune {
-		if r != '\n' && unicode.IsControl(r) {
+		if r != '\n' && (unicode.IsControl(r) || unicode.Is(unicode.Cf, r) || r == '\u2028' || r == '\u2029') {
 			return -1
 		}
 
 		return r
-	}, s)
+	}, ansi.Strip(stripURLSecrets(s)))
 
-	return urlQuery.ReplaceAllString(s, "$1")
+	return stripURLSecrets(s)
 }
 
 // swallowQuitWhileUpdating is a tea.WithFilter that drops quit and interrupt (SIGINT/SIGTERM) messages
@@ -54,6 +59,7 @@ type updateCheck struct {
 	Current, Latest string
 	Available       bool   // false means already up to date
 	ManualURL       string // non-empty means the executable is not writable
+	Exe             string // the executable path, named in the not-writable message
 }
 
 type updateState int
@@ -151,7 +157,7 @@ func (m updateModel) checked(msg checkedMsg) (tea.Model, tea.Cmd) {
 		return m.finish(fmt.Sprintf("already up to date (%s)\n", msg.check.Current), nil)
 	case msg.check.ManualURL != "":
 		return m.finish(fmt.Sprintf(
-			"not writable; download %s manually from:\n%s\n", msg.check.Latest, clean(msg.check.ManualURL)), nil)
+			"%s is not writable; download manually from:\n%s\n", clean(msg.check.Exe), clean(msg.check.ManualURL)), nil)
 	}
 
 	m.state = stateConfirm
@@ -185,12 +191,12 @@ func (m updateModel) key(k string) (tea.Model, tea.Cmd) {
 func (m updateModel) finish(view string, err error) (tea.Model, tea.Cmd) {
 	m.state, m.view, m.err = stateDone, view, err
 	if err != nil {
-		text := clean(err.Error())
-		if strings.TrimSpace(text) == "" {
-			text = errBlank
+		m.view = clean(err.Error())
+		if strings.TrimSpace(m.view) == "" {
+			m.view = "update failed"
 		}
 
-		m.view = text + "\n"
+		m.view += "\n"
 	}
 
 	return m, tea.Quit

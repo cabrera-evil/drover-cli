@@ -39,7 +39,9 @@ drover update --yes            # skip the prompt; required when stdin is not int
 drover update --version v1.2.3 # install a specific release
 ```
 
-In a terminal, `update` starts an interactive flow automatically (unless `--yes` or `--check` is set); when stdin or stdout is piped it keeps the plain scripted behavior.
+In a terminal, `update` starts an interactive flow automatically (unless `--yes` or `--check` is set); when stdin or stdout is not a terminal it keeps the plain scripted behavior and refuses to update without `--yes`.
+
+While the binary is being replaced, key presses and the first external SIGINT/SIGTERM are ignored; a second external SIGINT/SIGTERM ends the process. In the interactive view Ctrl-C is a key press, not a signal, so to stop a hung replace use `kill` from another shell.
 
 Dev and dirty builds refuse to update. Set `GITHUB_TOKEN` for private repos or rate limits.
 
