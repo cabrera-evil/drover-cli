@@ -28,6 +28,21 @@ Optional configuration:
 APP_NAME=Codex make run
 ```
 
+## Updating
+
+Release builds can update themselves from GitHub Releases:
+
+```bash
+drover update --check          # report current vs latest, change nothing
+drover update                  # interactive: spinner, "Update X -> Y? [y/N]", progress, result
+drover update --yes            # skip the prompt; required when stdin is not interactive
+drover update --version v1.2.3 # install a specific release
+```
+
+In a terminal, `update` starts an interactive flow automatically (unless `--yes` or `--check` is set); when stdin or stdout is piped it keeps the plain scripted behavior.
+
+Dev and dirty builds refuse to update. Set `GITHUB_TOKEN` for private repos or rate limits.
+
 ## Docker
 
 ```bash

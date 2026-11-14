@@ -22,7 +22,7 @@ func NewRootCmd(version string) *cobra.Command {
 	root.SetOut(os.Stdout)
 	root.PersistentFlags().String("config", "", "path to a drover.yaml (overrides discovery)")
 	root.SetFlagErrorFunc(func(_ *cobra.Command, err error) error { return usageError(err) })
-	root.AddCommand(newConfigCmd(), newStacksCmd())
+	root.AddCommand(newConfigCmd(), newStacksCmd(), newUpdateCmd(version))
 
 	return root
 }
